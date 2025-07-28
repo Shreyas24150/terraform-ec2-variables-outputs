@@ -4,10 +4,6 @@ Made Terraform EC2 setup with dynamic, reusable, and modular
 
 ---
 
-**Please refer my terraform-ec2.git**
-
----
-
 ## In this there are
 ```
 | Concept             | Purpose                         |
