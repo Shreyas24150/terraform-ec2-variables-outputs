@@ -1,10 +1,10 @@
-# 🚀 Terraform AWS EC2 Automation with Variables & Outputs
+# Terraform AWS EC2 Automation with Variables & Outputs
 
 Made Terraform EC2 setup with dynamic, reusable, and modular
 
 ---
 
-Please refer my terraform-ec2.git
+**Please refer my terraform-ec2.git**
 
 ---
 
