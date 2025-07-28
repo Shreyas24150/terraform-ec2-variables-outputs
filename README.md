@@ -1,90 +1,123 @@
-# 🚀 Terraform AWS EC2 Setup (WSL + VS Code)
+# 🚀 Terraform AWS EC2 Automation with Variables & Outputs
 
-This project demonstrates how to launch an AWS EC2 instance using **Terraform** from **Windows Subsystem for Linux (WSL)** inside **VS Code**.
+Made Terraform EC2 setup with dynamic, reusable, and modular
+
+---
+
+Please refer my terraform-ec2.git
+
 ---
 
 ## In this there are
-- Terraform `main.tf` to deploy an EC2 instance
-- AWS Provider configuration
-- Secure key handling (via AWS CLI or direct keys)
-- Tested in **Ubuntu WSL1 on Windows 11 + VS Code**
-
----
-
-## Prerequisites
-
-- ✅ AWS Account
-- ✅ AWS IAM Access Key & Secret Key
-- ✅ WSL1 with Ubuntu installed
-- ✅ VS Code with WSL extension
-- ✅ Terraform installed inside WSL
+```
+| Concept             | Purpose                         |
+| ------------------- | ------------------------------- |
+| `variables.tf`      | Replace hardcoded values        |
+| `terraform.tfvars`  | Separate file for actual values |
+| `outputs.tf`        | Print useful info after deploy  |
+| `terraform fmt`     | Format and clean up code        |
+| `terraform destroy` | Clean teardown                  |
+```
 
 ---
 
 ## ⚙️ Setup & Usage
 
-1. **Clone the repo or create the project folder**
-   ```bash
-   mkdir terraform-ec2 && cd terraform-ec2
-   code .
-   ```
-
-2. **Install Terraform in WSL**
-```
-sudo apt update && sudo apt install terraform
-terraform -version
-```
-
-3. **Configure AWS**
-Method 1 - Hardcoded keys in main.tf(Not secure for production)
-```
-provider "aws" {
-  region     = "ap-south-1"
-  access_key = "YOUR_ACCESS_KEY"
-  secret_key = "YOUR_SECRET_KEY"
-}
-```
-
-Method 2 - Use AWS CLI (recommended)
-```
-sudo apt install awscli
-aws configure
-```
-
-Then update main.tf to 
-```
-provider "aws" {
-  region = "ap-south-1"
-}
-```
-
-4. **Terraform Command**
-```
-terraform init     # Initializes the working directory
-terraform plan     # Shows what will be created
-terraform apply    # Provisions EC2 instance
-```
-
-5. **Destroy resources (cleanup)**
-```
-terraform destroy
-```
-
-## EC2 Specs
-
-Region: eu-north-1
-
-AMI: ami-0becc523130ac9d5d (Ubuntu 22.04)
-
-Instance Type: t3.micro
-
-Tag: "Name" = "TerraformEC2"
-
 ## Folder Structure
 ```
 terraform-ec2/
 ├── main.tf
+├── variables.tf
+├── terraform.tfvars
+├── outputs.tf
 └── README.md
+```
+## 1. Create variables.tf
+```
+variable "region" {
+  description = "AWS region"
+  default     = "ap-south-1"
+}
+
+variable "instance_type" {
+  description = "Type of EC2 instance"
+  default     = "t2.micro"
+}
+
+variable "ami" {
+  description = "AMI ID for EC2"
+  default     = "ami-0f58b397bc5c1f2e8"
+}
+
+variable "instance_name" {
+  description = "Tag for EC2"
+  default     = "Terraform-EC2"
+}
+```
+**Note**
+In this file we have created different variables like region, instance_type, ami, instance_name.
+We can use this variables in files like main.tf.
+
+## 2. Update main.tf
+```
+provider "aws" {
+  region = var.region
+}
+
+resource "aws_instance" "myec2" {
+  ami           = var.ami
+  instance_type = var.instance_type
+
+  tags = {
+    Name = var.instance_name
+  }
+}
+```
+**Note**
+We have used the variables region, instance_type, ami, instance_name in this file by writing var.region, var.ami, var.instance_type, var.instance_name.
+
+
+## 3. Create terraform.tfvars
+```
+region         = "ap-south-1"
+instance_type  = "t2.micro"
+ami            = "ami-0f58b397bc5c1f2e8"
+instance_name  = "Shreyas-Auto-EC2"
+```
+**Note**
+In this file we have defined actual values for the input variables declared in variables.tf
+
+
+## 4. Create outputs.tf
+```
+output "instance_id" {
+  description = "The ID of the EC2 instance"
+  value       = aws_instance.myec2.id
+}
+
+output "public_ip" {
+  description = "The public IP of the EC2 instance"
+  value       = aws_instance.myec2.public_ip
+}
+```
+**Note**
+This file display the deployed instance's id and pubilc id after terraform apply
+
+## 5. Run the project
+```
+terraform fmt          # clean formatting
+terraform init
+terraform plan
+terraform apply
+```
+
+**You’ll see:**
+
+```
+Outputs:
+
+instance_id = "i-0abc123456789"
+public_ip   = "13.234.45.67"
 ```
 
 ## Notes
@@ -93,5 +126,3 @@ Never commit your access keys to GitHub
 Use .gitignore for .terraform/ and sensitive files
 Tested on WSL1 Ubuntu 20.04
 ```
-
-
